@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import ua.frist008.action.record.features.NavCommand
 
 /**
- * Inject on [ua.frist008.action.record.di.module.ui.NavigationModule]
+ * Inject on [ua.frist008.action.record.core.ui.navigation.NavigationModule]
  */
 @Stable class Navigator(
     sharedFlow: MutableSharedFlow<NavCommand> = MutableSharedFlow(),
