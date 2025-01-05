@@ -6,6 +6,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
+import com.google.android.gms.ads.AdSize
 import ua.frist008.action.record.R
 import ua.frist008.action.record.core.ui.UIState
 import ua.frist008.action.record.core.ui.theme.color.AppColorScheme
@@ -22,6 +23,7 @@ import ua.frist008.action.record.core.ui.theme.color.AppColorScheme
     val isWebCam: Boolean,
     val isMic: Boolean,
     val gameActive: Boolean,
+    val adSize: AdSize = AdSize.BANNER,
 ) : UIState.Success() {
 
     init {

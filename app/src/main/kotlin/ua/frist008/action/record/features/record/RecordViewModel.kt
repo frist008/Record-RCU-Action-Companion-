@@ -4,10 +4,15 @@ import android.os.Vibrator
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.LoadAdError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import ua.frist008.action.record.R
 import ua.frist008.action.record.analytics.Analytics
@@ -34,6 +39,26 @@ import javax.inject.Inject
     private val vibrator: Vibrator,
 ) : BaseViewModel(dependencies) {
 
+    private val stateMutex = Mutex()
+
+    val adListener = object : AdListener() {
+
+        private var errorCounter = 0
+
+        override fun onAdLoaded() {
+            errorCounter = 0
+        }
+
+        override fun onAdFailedToLoad(error: LoadAdError) {
+            if (++errorCounter > 10) {
+                errorCounter = 0
+                changeBannerSize()
+            }
+        }
+
+        override fun onAdClosed() = changeBannerSize()
+    }
+
     init {
         val pcId = savedStateHandle.toRoute<NavCommand.RecordScreen>().pcId
 
@@ -42,7 +67,7 @@ import javax.inject.Inject
                 try {
                     recordRepository.connect(pcId)
                 } catch (e: SocketTimeoutException) {
-                    mutableState.emit(UIState.Progress())
+                    stateMutex.withLock { mutableState.emit(UIState.Progress()) }
                     Timber.d(e)
                 }
             }
@@ -50,12 +75,14 @@ import javax.inject.Inject
 
         launch {
             recordRepository.recordFlow.collectLatest {
-                if (it.connected) {
-                    val state = it.toUI(state.value as? RecordSuccessState?)
-                    mutableState.emit(state)
-                    Analytics.log(state)
-                } else {
-                    mutableState.emit(UIState.Progress())
+                stateMutex.withLock {
+                    if (it.connected) {
+                        val state = it.toUI(state.value as? RecordSuccessState?)
+                        mutableState.emit(state)
+                        Analytics.log(state)
+                    } else {
+                        mutableState.emit(UIState.Progress())
+                    }
                 }
             }
         }
@@ -101,6 +128,17 @@ import javax.inject.Inject
                 recordRepository.sendCommand(FixedRecordCommand.STOP)
             } else {
                 recordRepository.sendCommand(StreamingRecordCommand.STOP)
+            }
+        }
+    }
+
+    private fun changeBannerSize() {
+        launch {
+            stateMutex.withLock {
+                val state = state.value as? RecordSuccessState? ?: return@launch
+                val oldSize = state.adSize
+                val newSize = if (oldSize == AdSize.BANNER) AdSize.LARGE_BANNER else AdSize.BANNER
+                mutableState.emit(state.copy(adSize = newSize))
             }
         }
     }

@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.persistentListOf
 import ua.frist008.action.record.R
@@ -103,7 +104,7 @@ private class DevicesProvider : PreviewParameterProvider<DevicesSuccessState> {
                 DeviceSuccessState(
                     id = 0,
                     isAvailableStatus = true,
-                    name = "Name PC",
+                    name = LoremIpsum(6).values.first(),
                     address = "192.168.0.1:2555",
                 ),
                 DeviceSuccessState(

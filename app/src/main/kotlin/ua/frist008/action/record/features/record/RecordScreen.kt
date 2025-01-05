@@ -20,6 +20,7 @@ fun RecordScreen(viewModel: RecordViewModel = hiltViewModel()) {
             if (currentState.gameActive) {
                 RecordSuccessScreen(
                     state = currentState,
+                    adListener = viewModel.adListener,
                     onStartClick = viewModel::onStartClick,
                     onResumeClick = viewModel::onResumeClick,
                     onPauseClick = viewModel::onPauseClick,

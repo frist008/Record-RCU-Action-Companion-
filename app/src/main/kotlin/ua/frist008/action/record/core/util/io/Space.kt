@@ -32,7 +32,7 @@ val Long.gb: Space get() = Space(this * Space.GB_IN_BYTES)
 val Int.bytes: Space get() = Space(this.toLong())
 val Int.kb: Space get() = Space(this.toLong() * Space.KB_IN_BYTES)
 val Int.mb: Space get() = Space(this.toLong() * Space.MB_IN_BYTES)
-val Int.gb: Space get() = Space(this * Space.GB_IN_BYTES + Int.MAX_VALUE)
+val Int.gb: Space get() = Space(this * Space.GB_IN_BYTES)
 
 val Float.bytes: Space get() = Space(this.toLong())
 val Float.kb: Space get() = Space((this * Space.KB_IN_BYTES).toLong())
